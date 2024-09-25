@@ -13,13 +13,12 @@ public class IterativeRecurrenceSolver {
         int b = recurrence.b;
         String fn = recurrence.fn;
 
-        // Analisi della funzione f(n)
-        FnComponents fnComponents = getFnComponents(fn);
-
         // Titolo
         solution.append("<h2>Ricorrenza:</h2>\n");
         solution.append("$$\n");
-        solution.append("T(n) = ").append(a).append("T\\left(\\dfrac{n}{").append(b).append("}\\right) + ").append(formatFn(fn)).append("\n");
+        solution.append("T(n) = ").append(a)
+                .append("T\\left(\\dfrac{n}{").append(b)
+                .append("}\\right) + ").append(formatFn(fn)).append("\n");
         solution.append("$$\n");
 
         // Espansione
@@ -72,7 +71,7 @@ public class IterativeRecurrenceSolver {
         solution.append("<h3>Sostituzione nel pattern generale:</h3>\n");
         solution.append("Sostituendo il valore di \\( k \\):<br>");
         solution.append("$$\n");
-        solution.append("T(n) = n^{\\log_{").append(b).append("} ").append(a).append("} + ")
+        solution.append("T(n) = n^{\\log_{").append(b).append("} ").append(a).append("} \\times T(1) + ")
                 .append(buildSummationWithLog(a, b, fn))
                 .append("\n");
         solution.append("$$\n");
@@ -85,19 +84,14 @@ public class IterativeRecurrenceSolver {
         solution.append("<h3>Semplificazione della sommatoria:</h3>\n");
         solution.append("Risolvendo la sommatoria, otteniamo:<br>");
         solution.append("$$\n");
-        solution.append("S = ").append(resolveSummation(a, b, fn, n))
+        solution.append("S = ").append(resolveSummation(a, b, fn))
                 .append("\n$$\n");
 
         // Semplificazione finale
         solution.append("<h3>Semplificazione finale:</h3>\n");
         solution.append("Poiché \\( T(1) = \\Theta(1) \\):<br>");
         solution.append("$$\n");
-        String degreeStr = formatExponent(fnComponents.degree);
-        String logExpStr = formatExponent(fnComponents.logExponent);
-
-        solution.append("T(n) = n^{\\log_{").append(b).append("} ").append(a).append("} + ")
-                .append("n").append(degreeStr).append(" (\\log n)").append(logExpStr).append(" \\times ")
-                .append("\\left( \\log_{").append(b).append("} n \\right)")
+        solution.append("T(n) = n^{\\log_{").append(b).append("} ").append(a).append("} + ").append(resolveSummation(a, b, fn))
                 .append("\n$$\n");
 
         // Determinazione della complessità
@@ -106,7 +100,7 @@ public class IterativeRecurrenceSolver {
 
         solution.append("La complessità asintotica è:<br>");
         solution.append("$$\n");
-        solution.append("T(n) = \\Theta\\left(").append(complexity).append("\\right)\n");
+        solution.append("T(n) = \\Theta(").append(complexity).append(")\n");
         solution.append("$$\n");
 
         return solution.toString();
@@ -120,7 +114,9 @@ public class IterativeRecurrenceSolver {
         fn = fn.replaceAll("n\\^(\\d+(\\.\\d+)?)", "n^{$1}");
         // Gestisce logaritmi se presenti
         fn = fn.replaceAll("logn", "\\\\log n");
-        fn = fn.replaceAll("log\\(([^)]+)\\)", "\\\\log \\left($1\\right)");
+        fn = fn.replaceAll("log\\((n)\\)", "\\\\log $1");
+        fn = fn.replaceAll("log\\((n/[^)]+)\\)", "\\\\log \\left($1\\right)");
+        fn = fn.replaceAll("log\\(n\\)", "\\\\log n");
         return fn;
     }
 
@@ -166,76 +162,93 @@ public class IterativeRecurrenceSolver {
         StringBuilder expansion = new StringBuilder();
         expansion.append("Sostituiamo \\( k = \\log_{").append(b).append("} n \\) nella sommatoria:<br>");
         expansion.append("$$\n");
-        expansion.append("S = ").append(buildSummationWithLog(a, b, fn));
+        expansion.append("S = \\sum_{i=0}^{\\log_{").append(b).append("} n -1} ").append(a).append("^{i} \\times ");
+
+        String formattedFn = formatFn(fn);
+        formattedFn = formattedFn.replaceAll("n", "\\\\left(\\\\dfrac{n}{" + b + "^{i}}\\\\right)");
+
+        expansion.append(formattedFn);
         expansion.append("\n$$\n");
 
         return expansion.toString();
     }
 
     // Metodo per risolvere la sommatoria
-    private static String resolveSummation(int a, int b, String fn, int n) {
+    private static String resolveSummation(int a, int b, String fn) {
         FnComponents fnComponents = getFnComponents(fn);
-        double d = fnComponents.degree;
-        double k = fnComponents.logExponent;
+        String d = fnComponents.degree;
+        String k = fnComponents.logExponent;
 
         // Calcolo del rapporto r = a / b^d
-        double ratio = a / Math.pow(b, d);
+        String ratio = "\\dfrac{" + a + "}{" + b + "^{" + d + "}}";
 
         StringBuilder solution = new StringBuilder();
 
         // Caso in cui f(n) = Theta(n^d log^k n)
-        solution.append("n");
+        solution.append("n^{").append(d).append("} ");
 
-        // Aggiungere l'esponente di n se degree != 1
-        if (d != 1.0) {
-            solution.append("^{").append(formatNumberForLatex(d)).append("}");
+        if (!k.equals("0")) {
+            solution.append("(\\log n)^{").append(k).append("} ");
         }
 
-        // Aggiungere il termine logaritmico se presente
-        if (k != 0.0) {
-            solution.append(" (\\log n)");
-            if (k != 1.0) {
-                solution.append("^{").append(formatNumberForLatex(k)).append("}");
-            }
+        solution.append("\\times \\sum_{i=0}^{\\log_{").append(b).append("} n -1} \\left(")
+                .append(ratio).append("\\right)^{i}");
+
+        if (!k.equals("0")) {
+            solution.append(" \\left( \\dfrac{\\log \\left( \\dfrac{n}{").append(b).append("^{i}} \\right)}{\\log n} \\right)^{").append(k).append("}");
         }
 
-        solution.append(" \\times ");
+        // Semplificazione dell'esponente
+        String exponent = "\\log_{" + b + "} " + a + " - " + d;
 
-        if (Math.abs(ratio - 1) < 1e-6) {
-            // Caso in cui il rapporto è circa 1
-            solution.append("\\left( \\log_{").append(b).append("} n \\right)");
-        } else {
-            // Caso generale della serie
-            double exponent = (Math.log(a) / Math.log(b)) - d;
-            solution.append("\\dfrac{1 - n^{").append(formatNumberForLatex(exponent)).append("}}{1 - \\dfrac{").append(a).append("}{").append(b).append("^{").append(formatNumberForLatex(d)).append("}}}");
+        // Aggiunge la semplificazione finale
+        solution.append(" = n^{").append(d).append("} ");
+
+        if (!k.equals("0")) {
+            solution.append("(\\log n)^{").append(k).append("} ");
         }
+
+        solution.append("\\times \\dfrac{1 - n^{").append(exponent).append("}}{1 - ").append(ratio).append("}");
 
         return solution.toString();
     }
 
     // Metodo per determinare la complessità asintotica
     private static String determineComplexity(int a, int b, String fn) {
-        double logba = Math.log(a) / Math.log(b);
+        String logba = "\\log_{" + b + "} " + a;
 
         FnComponents fnComponents = getFnComponents(fn);
-        double d = fnComponents.degree;
-        double k = fnComponents.logExponent;
+        String d = fnComponents.degree;
+        String k = fnComponents.logExponent;
 
-        if (Math.abs(d - logba) < 1e-6) {
-            return "n^{" + formatNumberForLatex(d) + "} (\\log n)^{" + formatNumberForLatex(k + 1) + "}";
-        } else if (d > logba) {
-            return "n^{" + formatNumberForLatex(d) + "} (\\log n)^{" + formatNumberForLatex(k) + "}";
+        if (d.equals(logba)) {
+            return "n^{" + d + "} (\\log n)^{" + k + "+1}";
+        } else if (compareExponents(d, logba) > 0) {
+            if (!k.equals("0")) {
+                return "n^{" + d + "} (\\log n)^{" + k + "}";
+            } else {
+                return "n^{" + d + "}";
+            }
         } else {
-            return "n^{" + formatNumberForLatex(logba) + "}";
+            return "n^{" + logba + "}";
         }
+    }
+
+    // Metodo per confrontare esponenti simbolici
+    private static int compareExponents(String d, String logba) {
+        // Questo metodo è un placeholder e dovrebbe essere implementato per confrontare espressioni simboliche.
+        // Per semplicità, supponiamo che non ci siano valori decimali e che d e logba siano interi rappresentati come stringhe.
+        int dInt = Integer.parseInt(d);
+        int logbaInt = Integer.parseInt(logba.replaceAll("[^0-9]", ""));
+        return Integer.compare(dInt, logbaInt);
     }
 
     // Classe per memorizzare il grado polinomiale e l'esponente logaritmico
     private static class FnComponents {
-        double degree;
-        double logExponent;
+        String degree;
+        String logExponent;
 
-        FnComponents(double degree, double logExponent) {
+        FnComponents(String degree, String logExponent) {
             this.degree = degree;
             this.logExponent = logExponent;
         }
@@ -244,58 +257,25 @@ public class IterativeRecurrenceSolver {
     // Metodo per ottenere il grado di f(n) e l'esponente logaritmico
     private static FnComponents getFnComponents(String fn) {
         fn = fn.replaceAll("\\s+", "").toLowerCase();
-        double degree = 0.0;
-        double logExponent = 0.0;
+        String degree = "0";
+        String logExponent = "0";
 
         // Match per n^d
-        Pattern polyPattern = Pattern.compile("n\\^(\\d+(\\.\\d+)?)");
+        Pattern polyPattern = Pattern.compile("n\\^\\{?(\\d+)\\}?");
         Matcher polyMatcher = polyPattern.matcher(fn);
         if (polyMatcher.find()) {
-            degree = Double.parseDouble(polyMatcher.group(1));
+            degree = polyMatcher.group(1);
         } else if (fn.contains("n")) {
-            degree = 1.0;
+            degree = "1";
         }
 
         // Match per log^k n
-        Pattern logPattern = Pattern.compile("log\\^?(\\d+(\\.\\d+)?)?n");
+        Pattern logPattern = Pattern.compile("log\\^\\{?(\\d+)\\}?n");
         Matcher logMatcher = logPattern.matcher(fn);
         if (logMatcher.find()) {
-            if (logMatcher.group(1) != null) {
-                logExponent = Double.parseDouble(logMatcher.group(1));
-            } else {
-                logExponent = 1.0;
-            }
-        }
-
-        // Convertire in interi se possibile
-        if (degree == (int) degree) {
-            degree = (int) degree;
-        }
-
-        if (logExponent == (int) logExponent) {
-            logExponent = (int) logExponent;
+            logExponent = logMatcher.group(1) != null ? logMatcher.group(1) : "1";
         }
 
         return new FnComponents(degree, logExponent);
-    }
-
-    // Metodo per formattare un esponente (se è 1 o 0, omette l'esponente)
-    private static String formatExponent(double exponent) {
-        if (exponent == 0.0) {
-            return "";
-        } else if (exponent == 1.0) {
-            return "";
-        } else {
-            return "^{"+formatNumberForLatex(exponent)+"}";
-        }
-    }
-
-    // Metodo per formattare un numero per LaTeX (rimuove .0 se intero)
-    private static String formatNumberForLatex(double number) {
-        if (number == (int) number) {
-            return String.valueOf((int) number);
-        } else {
-            return String.valueOf(number);
-        }
     }
 }

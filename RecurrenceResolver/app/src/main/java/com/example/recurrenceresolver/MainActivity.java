@@ -28,6 +28,10 @@ public class MainActivity extends AppCompatActivity {
         btnCalcola = findViewById(R.id.btn_calcola);
         outputWebView = findViewById(R.id.output_webview);
 
+        // Pre-inserimento di "T(n) = " e posizionamento del cursore
+        inputEquation.setText("T(n) = ");
+        inputEquation.setSelection(inputEquation.getText().length());
+
         // Abilita il supporto JavaScript per la WebView (necessario per MathJax)
         WebSettings webSettings = outputWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);

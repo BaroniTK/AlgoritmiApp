@@ -44,7 +44,8 @@
                 android:id="@+id/input_equation"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="text" />
+                android:text="T(n) = "
+                android:hint="Inserisci la ricorrenza" />
 
         </com.google.android.material.textfield.TextInputLayout>
 

@@ -42,7 +42,7 @@ public class IterativeRecurrenceSolver {
 
             // Caso base raggiunto
             if (currentN < 1) {
-                expansion.append("T(1) = 1<br>");
+                expansion.append("T(1) = T(1)<br>");
                 break;
             }
         }
@@ -74,16 +74,23 @@ public class IterativeRecurrenceSolver {
                 .append("\n");
         solution.append("$$\n");
 
-        // Espansione della sommatoria
+        // Espansione della sommatoria con sostituzione di k
         solution.append("<h3>Sviluppo della sommatoria:</h3>\n");
-        solution.append(expandSummation(a, b, fn, k));
+        solution.append(expandSummation(a, b, fn));
 
         // Semplificazione
-        solution.append("<h3>Semplificazione:</h3>\n");
-        solution.append("Poiché \\( T(1) = 1 \\):<br>");
+        solution.append("<h3>Semplificazione della sommatoria:</h3>\n");
+        solution.append("Risolvendo la sommatoria, otteniamo:<br>");
         solution.append("$$\n");
-        solution.append("T(n) = n^{\\log_{").append(b).append("} ").append(a).append("} + \\text{[Termine della sommatoria sviluppato]}\n");
+        solution.append("S = ").append(resolveSummation(a, b, fn, n))
+                .append("\n$$\n");
+
+        // Semplificazione finale
+        solution.append("<h3>Semplificazione finale:</h3>\n");
+        solution.append("Poiché \\( T(1) = \\Theta(1) \\):<br>");
         solution.append("$$\n");
+        solution.append("T(n) = n^{\\log_{").append(b).append("} ").append(a).append("} + ").append(resolveSummation(a, b, fn, n))
+                .append("\n$$\n");
 
         // Determinazione della complessità
         solution.append("<h3>Conclusione:</h3>\n");
@@ -146,33 +153,60 @@ public class IterativeRecurrenceSolver {
         return summation.toString();
     }
 
-    // Metodo per espandere la sommatoria
-    private static String expandSummation(int a, int b, String fn, int k) {
+    // Metodo per espandere la sommatoria con sostituzione di k
+    private static String expandSummation(int a, int b, String fn) {
         StringBuilder expansion = new StringBuilder();
-        expansion.append("Espandendo la sommatoria:<br>");
+        expansion.append("Sostituiamo \\( k = \\log_{").append(b).append("} n \\) nella sommatoria:<br>");
         expansion.append("$$\n");
-        expansion.append("\\begin{align*}\n");
-        expansion.append("S &= ");
+        expansion.append("S = \\sum_{i=0}^{\\log_{").append(b).append("} n -1} ").append(a).append("^{i} \\times ");
 
-        // Costruzione dei termini della sommatoria
-        for (int i = 0; i < k; i++) {
-            if (i > 0) {
-                expansion.append("+ ");
-            }
+        String formattedFn = formatFn(fn);
+        formattedFn = formattedFn.replaceAll("n", "\\\\left(\\\\dfrac\\{n\\}{" + b + "^{i}}\\\\right)");
 
-            expansion.append(a).append("^{").append(i).append("} \\times ");
-            String term = formatFn(fn).replaceAll("n", "\\\\left(\\\\dfrac\\{n\\}{" + b + "^{" + i + "}}\\\\right)");
-            expansion.append(term);
-
-            if (i < k - 1) {
-                expansion.append(" \\\\\n& ");
-            }
-        }
-
-        expansion.append("\n\\end{align*}\n");
-        expansion.append("$$\n");
+        expansion.append(formattedFn);
+        expansion.append("\n$$\n");
 
         return expansion.toString();
+    }
+
+    // Metodo per risolvere la sommatoria
+    private static String resolveSummation(int a, int b, String fn, int n) {
+        double d = getFnDegree(fn);
+
+        // Calcolo del rapporto r = a / b^d
+        double ratio = a / Math.pow(b, d);
+
+        StringBuilder solution = new StringBuilder();
+
+        // Caso in cui f(n) = Theta(n^d)
+        if (d != 0) {
+            solution.append("n^{").append(d).append("} \\times \\sum_{i=0}^{\\log_{").append(b).append("} n -1} \\left(\\dfrac{")
+                    .append(a).append("}{").append(b).append("^{").append(d).append("}}\\right)^{i}");
+
+            if (Math.abs(ratio - 1) < 1e-6) {
+                // Caso in cui il rapporto è circa 1
+                solution.append(" = n^{").append(d).append("} \\times \\left(\\log_{").append(b).append("} n\\right)");
+            } else {
+                // Caso generale della serie geometrica
+                solution.append(" = n^{").append(d).append("} \\times \\dfrac{1 - \\left(\\dfrac{")
+                        .append(a).append("}{").append(b).append("^{").append(d).append("}}\\right)^{\\log_{")
+                        .append(b).append("} n}}{1 - \\dfrac{").append(a).append("}{").append(b).append("^{").append(d).append("}}}");
+                // Semplificazione dell'esponente
+                double exponent = (Math.log(a) / Math.log(b) - d);
+                solution.append(" = n^{").append(d).append("} \\times \\dfrac{1 - n^{").append(exponent).append("}}{1 - \\dfrac{")
+                        .append(a).append("}{").append(Math.pow(b, d)).append("}}");
+            }
+        } else {
+            // Caso in cui f(n) = Theta(1)
+            solution.append("\\sum_{i=0}^{\\log_{").append(b).append("} n -1} ").append(a).append("^{i}");
+            // Semplificazione della serie geometrica
+            solution.append(" = \\dfrac{1 - ").append(a).append("^{\\log_{").append(b).append("} n}}{1 - ").append(a).append("}");
+            // Semplificazione dell'esponente
+            double exponent = (Math.log(a) / Math.log(b));
+            solution.append(" = \\dfrac{1 - n^{").append(exponent).append("}}{1 - ").append(a).append("}");
+        }
+
+        return solution.toString();
     }
 
     // Metodo per determinare la complessità asintotica
@@ -185,7 +219,7 @@ public class IterativeRecurrenceSolver {
         if (Math.abs(fnDegree - logba) < 1e-6) {
             return "n^{" + String.format("%.2f", logba) + "} \\log n";
         } else if (fnDegree > logba) {
-            return formatFn(fn);
+            return "n^{" + fnDegree + "}";
         } else {
             return "n^{" + String.format("%.2f", logba) + "}";
         }

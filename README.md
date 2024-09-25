@@ -71,4 +71,4 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE.md) fi
 
 ## Contact
 
-For any questions or information, please contact [your-email@example.com](mailto:your-email@example.com).
+For any questions or information, please contact [baroni.buildati@gmail.com](mailto:baroni.buildati@gmail.com).

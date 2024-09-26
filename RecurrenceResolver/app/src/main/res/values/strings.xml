@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">RecurrenceResolver</string>
+    <string-array name="metodi_risoluzione">
+        <item>Espansione Iterativa</item>
+        <item>Teorema di Master</item>
+    </string-array>
 </resources>

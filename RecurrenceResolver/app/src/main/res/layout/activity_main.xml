@@ -1,70 +1,60 @@
-<!-- activity_main.xml -->
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
 
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/coordinator_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    android:orientation="vertical">
 
-    <!-- AppBar con Toolbar -->
-    <com.google.android.material.appbar.AppBarLayout
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        style="@style/Widget.MaterialComponents.Toolbar.Primary"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
+        app:title="Risolutore di Ricorrenze" />
 
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
-            style="@style/Widget.MaterialComponents.Toolbar.Primary"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:title="Risolutore di Ricorrenze"
-            android:titleTextColor="@android:color/white"
-            app:popupTheme="@style/ThemeOverlay.MaterialComponents.Light" />
-
-    </com.google.android.material.appbar.AppBarLayout>
-
-    <!-- Contenuto Principale -->
-    <LinearLayout
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/input_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="16dp"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:layout_height="wrap_content"
+        android:hint="Inserisci la ricorrenza"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp">
 
-        <!-- Input della Ricorrenza -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/input_layout"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/input_equation"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Inserisci la ricorrenza">
+            android:layout_height="wrap_content" />
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/input_equation"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="T(n) = "
-                android:hint="Inserisci la ricorrenza" />
+    </com.google.android.material.textfield.TextInputLayout>
 
-        </com.google.android.material.textfield.TextInputLayout>
+    <!-- Spinner per selezionare il metodo di risoluzione -->
+    <Spinner
+        android:id="@+id/spinner_metodo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:entries="@array/metodi_risoluzione" />
 
-        <!-- Pulsante Calcola -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_calcola"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Calcola"
-            android:layout_marginTop="16dp" />
+    <!-- Pulsante per calcolare -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_calcola"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Calcola"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp" />
 
-        <!-- WebView per l'Output -->
-        <WebView
-            android:id="@+id/output_webview"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:layout_marginTop="16dp" />
+    <WebView
+        android:id="@+id/output_webview"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
 
-    </LinearLayout>
-
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</LinearLayout>

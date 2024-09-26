@@ -22,7 +22,7 @@ public class IterativeRecurrenceSolver {
         solution.append("$$\n");
 
         // Espansione
-        solution.append("<h2>Soluzione:</h2>\n");
+        solution.append("<h2>Soluzione con Espansione Iterativa:</h2>\n");
         solution.append("<h3>Espansione:</h3>\n");
 
         // Inizializzazione per l'espansione
@@ -71,7 +71,7 @@ public class IterativeRecurrenceSolver {
         solution.append("<h3>Sostituzione nel pattern generale:</h3>\n");
         solution.append("Sostituendo il valore di \\( k \\):<br>");
         solution.append("$$\n");
-        solution.append("T(n) = n^{\\log_{").append(b).append("} ").append(a).append("} \\times T(1) + ")
+        solution.append("T(n) = ").append(a).append("^{\\log_{").append(b).append("} n} \\times T(1) + ")
                 .append(buildSummationWithLog(a, b, fn))
                 .append("\n");
         solution.append("$$\n");
@@ -102,6 +102,91 @@ public class IterativeRecurrenceSolver {
         solution.append("$$\n");
         solution.append("T(n) = \\Theta(").append(complexity).append(")\n");
         solution.append("$$\n");
+
+        return solution.toString();
+    }
+
+    // Metodo per risolvere una ricorrenza utilizzando il Teorema di Master
+    public static String solveRecurrenceWithMasterTheorem(RecurrenceParser.Recurrence recurrence) {
+        StringBuilder solution = new StringBuilder();
+
+        int a = recurrence.a;
+        int b = recurrence.b;
+        String fn = recurrence.fn;
+
+        // Titolo
+        solution.append("<h2>Ricorrenza:</h2>\n");
+        solution.append("$$\n");
+        solution.append("T(n) = ").append(a)
+                .append("T\\left(\\dfrac{n}{").append(b)
+                .append("}\\right) + ").append(formatFn(fn)).append("\n");
+        solution.append("$$\n");
+
+        // Calcolo di log_b a
+        double logba = Math.log(a) / Math.log(b);
+        String logbaStr = String.format("%.2f", logba);
+
+        solution.append("<h3>Calcolo di \\( \\log_{").append(b).append("} ").append(a).append(" = ").append(logbaStr).append(" \\):</h3>\n");
+
+        // Analisi di f(n)
+        FnComponents fnComponents = getFnComponents(fn);
+        String d = fnComponents.degree;
+        String k = fnComponents.logExponent;
+
+        solution.append("<h3>Analisi di \\( f(n) \\):</h3>\n");
+        solution.append("$$\n");
+        solution.append("f(n) = ").append(formatFn(fn)).append(" = \\Theta\\left( n^{").append(d).append("}");
+
+        if (!k.equals("0")) {
+            solution.append(" (\\log n)^{").append(k).append("}");
+        }
+
+        solution.append(" \\right)\n$$\n");
+
+        // Confronto tra f(n) e n^{log_b a}
+        solution.append("<h3>Confronto tra \\( f(n) \\) e \\( n^{\\log_{").append(b).append("} ").append(a).append("} \\):</h3>\n");
+        solution.append("Confrontiamo gli esponenti:\n");
+        solution.append("$$\n");
+        solution.append("d = ").append(d).append(" \\quad \\text{e} \\quad \\log_{").append(b).append("} ").append(a).append(" = ").append(logbaStr).append("\n");
+        solution.append("$$\n");
+
+        double dDouble = Double.parseDouble(d);
+        int comparison = Double.compare(dDouble, logba);
+
+        // Applicazione del caso appropriato
+        if (comparison < 0) {
+            // Caso 1
+            solution.append("<h3>Applicazione del Teorema di Master - Caso 1:</h3>\n");
+            solution.append("Poiché \\( d = ").append(d).append(" < \\log_{").append(b).append("} ").append(a).append(" = ").append(logbaStr).append(" \\),\n");
+            solution.append("allora:\n");
+            solution.append("$$\n");
+            solution.append("T(n) = \\Theta\\left( n^{").append(logbaStr).append("} \\right)\n");
+            solution.append("$$\n");
+        } else if (comparison == 0) {
+            // Caso 2
+            solution.append("<h3>Applicazione del Teorema di Master - Caso 2:</h3>\n");
+            solution.append("Poiché \\( d = ").append(d).append(" = \\log_{").append(b).append("} ").append(a).append(" = ").append(logbaStr).append(" \\),\n");
+            solution.append("e \\( f(n) = \\Theta\\left( n^{").append(d).append("} (\\log n)^{").append(k).append("} \\right) \\),\n");
+            solution.append("allora:\n");
+            int kPlusOne = Integer.parseInt(k) + 1;
+            solution.append("$$\n");
+            solution.append("T(n) = \\Theta\\left( n^{").append(d).append("} (\\log n)^{").append(kPlusOne).append("} \\right)\n");
+            solution.append("$$\n");
+        } else {
+            // Caso 3
+            solution.append("<h3>Applicazione del Teorema di Master - Caso 3:</h3>\n");
+            solution.append("Poiché \\( d = ").append(d).append(" > \\log_{").append(b).append("} ").append(a).append(" = ").append(logbaStr).append(" \\),\n");
+            solution.append("e \\( f(n) = \\Omega\\left( n^{").append(d).append("} \\right) \\),\n");
+            solution.append("e soddisfa la condizione di regolarità, allora:\n");
+            solution.append("$$\n");
+            solution.append("T(n) = \\Theta\\left( f(n) \\right) = \\Theta\\left( n^{").append(d).append("}");
+
+            if (!k.equals("0")) {
+                solution.append(" (\\log n)^{").append(k).append("}");
+            }
+
+            solution.append(" \\right)\n$$\n");
+        }
 
         return solution.toString();
     }
@@ -195,7 +280,7 @@ public class IterativeRecurrenceSolver {
                 .append(ratio).append("\\right)^{i}");
 
         if (!k.equals("0")) {
-            solution.append(" \\left( \\dfrac{\\log \\left( \\dfrac{n}{").append(b).append("^{i}} \\right)}{\\log n} \\right)^{").append(k).append("}");
+            solution.append(" \\left( \\dfrac{\\log \\left( \\dfrac{n}{" + b + "^{i}} \\right)}{\\log n} \\right)^{").append(k).append("}");
         }
 
         // Semplificazione dell'esponente
@@ -215,32 +300,28 @@ public class IterativeRecurrenceSolver {
 
     // Metodo per determinare la complessità asintotica
     private static String determineComplexity(int a, int b, String fn) {
-        String logba = "\\log_{" + b + "} " + a;
+        double logba = Math.log(a) / Math.log(b);
+        String logbaStr = String.format("%.2f", logba);
 
         FnComponents fnComponents = getFnComponents(fn);
         String d = fnComponents.degree;
         String k = fnComponents.logExponent;
 
-        if (d.equals(logba)) {
-            return "n^{" + d + "} (\\log n)^{" + k + "+1}";
-        } else if (compareExponents(d, logba) > 0) {
+        double dDouble = Double.parseDouble(d);
+        int comparison = Double.compare(dDouble, logba);
+
+        if (comparison == 0) {
+            int kPlusOne = Integer.parseInt(k) + 1;
+            return "n^{" + d + "} (\\log n)^{" + kPlusOne + "}";
+        } else if (comparison > 0) {
             if (!k.equals("0")) {
                 return "n^{" + d + "} (\\log n)^{" + k + "}";
             } else {
                 return "n^{" + d + "}";
             }
         } else {
-            return "n^{" + logba + "}";
+            return "n^{" + logbaStr + "}";
         }
-    }
-
-    // Metodo per confrontare esponenti simbolici
-    private static int compareExponents(String d, String logba) {
-        // Questo metodo è un placeholder e dovrebbe essere implementato per confrontare espressioni simboliche.
-        // Per semplicità, supponiamo che non ci siano valori decimali e che d e logba siano interi rappresentati come stringhe.
-        int dInt = Integer.parseInt(d);
-        int logbaInt = Integer.parseInt(logba.replaceAll("[^0-9]", ""));
-        return Integer.compare(dInt, logbaInt);
     }
 
     // Classe per memorizzare il grado polinomiale e l'esponente logaritmico
@@ -261,7 +342,7 @@ public class IterativeRecurrenceSolver {
         String logExponent = "0";
 
         // Match per n^d
-        Pattern polyPattern = Pattern.compile("n\\^\\{?(\\d+)\\}?");
+        Pattern polyPattern = Pattern.compile("n\\^\\{?(\\d+(\\.\\d+)?)\\}?");
         Matcher polyMatcher = polyPattern.matcher(fn);
         if (polyMatcher.find()) {
             degree = polyMatcher.group(1);
@@ -270,10 +351,12 @@ public class IterativeRecurrenceSolver {
         }
 
         // Match per log^k n
-        Pattern logPattern = Pattern.compile("log\\^\\{?(\\d+)\\}?n");
+        Pattern logPattern = Pattern.compile("log\\^\\{?(\\d+(\\.\\d+)?)\\}?n");
         Matcher logMatcher = logPattern.matcher(fn);
         if (logMatcher.find()) {
             logExponent = logMatcher.group(1) != null ? logMatcher.group(1) : "1";
+        } else if (fn.contains("logn") || fn.contains("log(n)")) {
+            logExponent = "1";
         }
 
         return new FnComponents(degree, logExponent);

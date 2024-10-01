@@ -116,7 +116,7 @@ Contributions, bug reports, and feature requests are welcome! Feel free to open 
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE.md) file for details.
+This project is licensed under the BARONI License. See the [LICENSE](LICENSE.md) file for details.
 
 ## Contact
 

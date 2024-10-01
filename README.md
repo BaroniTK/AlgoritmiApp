@@ -6,16 +6,17 @@ RecurrenceSolverApp is an Android application that allows users to solve and vis
 ## Features
 
 - Input recurrences in the format `T(n) = aT(n/b) + f(n)`
+- Choice of two solving methods: Iterative Expansion or Master Theorem
 - Detailed step-by-step solution
 - Mathematical equations displayed using LaTeX format with MathJax
 - Modern and intuitive user interface based on Material Design
 
 ## Project Structure
 
-- `MainActivity.java`: Manages the user interface and main operations
-- `IterativeRecurrenceSolver.java`: Contains the logic for solving recurrences iteratively
+- `MainActivity.java`: Manages the user interface, provides a menu for selecting the solving method (Iterative Expansion or Master Theorem), and handles the main operations
+- `IterativeRecurrenceSolver.java`: Contains the logic for solving recurrences either iteratively or using the Master Theorem
 - `RecurrenceParser.java`: Parses the recurrence equation input by the user
-- `activity_main.xml`: User interface layout
+- `activity_main.xml`: User interface layout with input fields, method selection menu (Spinner), and result WebView
 - `styles.xml`, `colors.xml`, `themes.xml`: Resource files for styles and colors
 - Icons and resources used in the application
 
@@ -48,15 +49,20 @@ RecurrenceSolverApp is an Android application that allows users to solve and vis
    - In the input field, enter the equation in the format `T(n) = aT(n/b) + f(n)`.
    - Example: `T(n) = 2T(n/2) + n`.
 
-2. **Calculate the Solution**:
-   - Press the "Calculate" button.
-   - The app will parse the equation and compute the step-by-step solution.
+2. **Select the Solving Method**:
+   - Use the drop-down menu to select between:
+     - "Iterative Expansion"
+     - "Master Theorem"
 
-3. **View the Solution**:
+3. **Calculate the Solution**:
+   - Press the "Calculate" button.
+   - The app will parse the equation and compute the step-by-step solution using the selected method.
+
+4. **View the Solution**:
    - The detailed solution will be displayed below.
    - Equations are formatted in LaTeX for better readability.
 
-4. **Example Equations**:
+5. **Example Equations**:
    - `T(n) = 3T(n/2) + n^2`
    - `T(n) = 4T(n/2) + n^3`
    - `T(n) = 2T(n/4) + n log n`

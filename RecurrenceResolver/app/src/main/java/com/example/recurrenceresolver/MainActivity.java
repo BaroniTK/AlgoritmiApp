@@ -81,6 +81,8 @@ public class MainActivity extends AppCompatActivity {
                 result = IterativeRecurrenceSolver.solveRecurrenceIteratively(recurrence, n);
             } else if (metodoSelezionato.equals("Teorema di Master")) {
                 result = IterativeRecurrenceSolver.solveRecurrenceWithMasterTheorem(recurrence);
+            } else if (metodoSelezionato.equals("Metodo di Sostituzione")) {
+                result = IterativeRecurrenceSolver.solveRecurrenceWithSubstitution(recurrence);
             } else {
                 throw new IllegalArgumentException("Metodo di risoluzione non valido.");
             }

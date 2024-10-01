@@ -3,5 +3,7 @@
     <string-array name="metodi_risoluzione">
         <item>Espansione Iterativa</item>
         <item>Teorema di Master</item>
+        <item>Metodo di Sostituzione</item> <!-- New method added -->
     </string-array>
+
 </resources>

@@ -18,116 +18,228 @@ public class IterativeRecurrenceSolver {
         solution.append("$$\n");
         solution.append("T(n) = ").append(a)
                 .append("T\\left(\\dfrac{n}{").append(b)
-                .append("}\\right) + ").append(formatFn(fn)).append("\n");
+                .append("}\\right) + ").append(formatFn(fn)).append(", \\quad n > 1\n");
+        solution.append("$$\n");
+        solution.append("$$\n");
+        solution.append("T(1) = \\Theta(1)\n");
         solution.append("$$\n");
 
         // Espansione
         solution.append("<h2>Soluzione con Espansione Iterativa:</h2>\n");
-        solution.append("<h3>Espansione:</h3>\n");
-
-        // Inizializzazione per l'espansione
-        int k = 0;
-        int currentN = n;
-        StringBuilder expansion = new StringBuilder();
-
-        while (currentN >= 1 && k < 100) { // Evita loop infiniti
-            // Calcolo del termine fn
-            String currentFn = computeFn(fn, currentN);
-
-            // Aggiunta del passo di espansione
-            expansion.append("T(").append(currentN).append(") = ")
-                    .append(a).append("T\\left(\\dfrac{").append(currentN).append("}{").append(b).append("}\\right) + ").append(currentFn).append("<br>");
-
-            // Preparazione per il prossimo passo
-            currentN = currentN / b;
-            k++;
-
-            // Caso base raggiunto
-            if (currentN < 1) {
-                expansion.append("T(1) = T(1)<br>");
-                break;
-            }
-        }
-
-        solution.append(expansion.toString());
 
         // Identificazione del pattern generale
-        solution.append("<h3>Osservazione del pattern:</h3>\n");
-        solution.append("Dopo \\( k \\) passi, otteniamo:<br>");
+        solution.append("<h3>Espansione generale:</h3>\n");
+        solution.append("Espandiamo la ricorrenza iterativamente:\n");
         solution.append("$$\n");
-        solution.append("T(n) = ").append(a).append("^{k}T\\left(\\dfrac{n}{").append(b).append("^{k}}\\right) + ")
-                .append(buildSummation(a, b, fn, k))
-                .append("\n");
+        solution.append("\\begin{align*}\n");
+        solution.append("T(n) &= ").append(a).append(" T\\left( \\dfrac{n}{").append(b).append("} \\right) + f(n) \\\\\n");
+        solution.append("&= ").append(a).append(" \\left[ ").append(a).append(" T\\left( \\dfrac{n}{").append(b).append("^2} \\right) + f\\left( \\dfrac{n}{").append(b).append("} \\right) \\right ] + f(n) \\\\\n");
+        solution.append("&= ").append(a).append("^2 T\\left( \\dfrac{n}{").append(b).append("^2} \\right) + ")
+                .append(a).append(" f\\left( \\dfrac{n}{").append(b).append("} \\right) + f(n) \\\\\n");
+        solution.append("&\\vdots \\\\\n");
+        solution.append("&= ").append(a).append("^k T\\left( \\dfrac{n}{").append(b).append("^k} \\right) + \\sum_{i=0}^{k-1} ")
+                .append(a).append("^i f\\left( \\dfrac{n}{").append(b).append("^i} \\right)\n");
+        solution.append("\\end{align*}\n");
         solution.append("$$\n");
 
         // Calcolo di k quando si raggiunge il caso base
         solution.append("<h3>Caso base:</h3>\n");
-        solution.append("Quando \\( \\dfrac{n}{").append(b).append("^{k}} = 1 \\), cioè \\( n = ").append(b).append("^{k} \\):<br>");
+        solution.append("Quando \\( \\dfrac{n}{").append(b).append("^k} = 1 \\), cioè quando \\( n = ").append(b).append("^k \\):\n");
         solution.append("$$\n");
         solution.append("k = \\log_{").append(b).append("} n\n");
         solution.append("$$\n");
 
         // Sostituzione nel pattern generale
         solution.append("<h3>Sostituzione nel pattern generale:</h3>\n");
-        solution.append("Sostituendo il valore di \\( k = \\log_{").append(b).append("} n \\):<br>");
+        solution.append("Sostituendo \\( k \\) nell'espressione espansa, otteniamo:\n");
         solution.append("$$\n");
-        solution.append("T(n) = ").append(a).append("^{\\log_{").append(b).append("} n} \\times T(1) + ")
-                .append(buildSummationWithLog(a, b, fn))
-                .append("\n");
-        solution.append("$$\n");
-
-        // Sviluppo della sommatoria
-        solution.append("<h3>Sviluppo della sommatoria:</h3>\n");
-        solution.append("Consideriamo la sommatoria risultante dall'espansione iterativa:<br>");
-        solution.append("$$\n");
-        solution.append("S = \\sum_{i=0}^{k-1} ").append(a).append("^i \\times f\\left(\\dfrac{n}{").append(b).append("^i}\\right)\n");
+        solution.append("T(n) = ").append(a).append("^{\\log_{").append(b).append("} n} T(1) + \\sum_{i=0}^{\\log_{").append(b).append("} n -1} ")
+                .append(a).append("^i f\\left( \\dfrac{n}{").append(b).append("^i} \\right)\n");
         solution.append("$$\n");
 
-        // Risoluzione della sommatoria simbolicamente
-        solution.append("<h3>Risoluzione della sommatoria:</h3>\n");
-        solution.append("Questa è una sommatoria geometrica, che può essere risolta simbolicamente senza esplicitare ogni termine.<br>");
-        solution.append("Utilizziamo la formula della somma geometrica parziale:<br>");
+        // Semplificazione di a^{log_b n}
+        solution.append("<h3>Semplificazione di \\( ").append(a).append("^{\\log_{").append(b).append("} n} \\):</h3>\n");
+        solution.append("Utilizziamo la proprietà dei logaritmi:\n");
         solution.append("$$\n");
-        solution.append("\\sum_{i=0}^{k-1} r^i = \\dfrac{1 - r^k}{1 - r}, \\quad \\text{dove} \\quad r = \\dfrac{a}{b^d}\n");
-        solution.append("$$\n");
-
-        // Applicazione della formula alla sommatoria
-        solution.append("Applicando questa formula alla nostra sommatoria, otteniamo:<br>");
-        solution.append("$$\n");
-        solution.append("S = n^d \\sum_{i=0}^{k-1} \\left( \\dfrac{a}{b^d} \\right)^i = n^d \\times \\dfrac{1 - \\left( \\dfrac{a}{b^d} \\right)^k}{1 - \\dfrac{a}{b^d}}\n");
+        solution.append(a).append("^{\\log_{").append(b).append("} n} = n^{\\log_{").append(b).append("} ").append(a).append("}\n");
         solution.append("$$\n");
 
-        // Sostituzione simbolica di k
-        solution.append("Sostituendo \\( k = \\log_{").append(b).append("} n \\) senza esplicitare i valori:<br>");
+        // Sostituzione nella formula
+        solution.append("Quindi, l'espressione diventa:\n");
         solution.append("$$\n");
-        solution.append("S = \\dfrac{n^d}{1 - \\dfrac{a}{b^d}} \\times \\left( 1 - \\left( \\dfrac{a}{b^d} \\right)^{\\log_{").append(b).append("} n} \\right) \n");
-        solution.append("$$\n");
-
-        // Semplificazione finale
-        solution.append("<h3>Semplificazione finale:</h3>\n");
-        solution.append("Poiché \\( T(1) = \\Theta(1) \\) e mantenendo il valore di \\( k \\) in forma simbolica:<br>");
-        solution.append("$$\n");
-        solution.append("T(n) = n^{\\log_{").append(b).append("} ").append(a).append("} + n^d \\times \\dfrac{1 - \\left( \\dfrac{a}{b^d} \\right)^{\\log_{").append(b).append("} n}}{1 - \\dfrac{a}{b^d}}\n");
+        solution.append("T(n) = n^{\\log_{").append(b).append("} ").append(a).append("} T(1) + \\sum_{i=0}^{\\log_{").append(b).append("} n -1} ")
+                .append(a).append("^i f\\left( \\dfrac{n}{").append(b).append("^i} \\right)\n");
         solution.append("$$\n");
 
-        // Determinazione della complessità
+        // Analisi della sommatoria
+        solution.append("<h3>Analisi della sommatoria:</h3>\n");
+
+        // Otteniamo i componenti di f(n)
+        FnComponents fnComponents = getFnComponents(fn);
+        String d = fnComponents.degree;
+        String kValue = fnComponents.logExponent;
+
+        // Calcolo del rapporto r = a / b^d
+        solution.append("Calcoliamo il rapporto:\n");
+        solution.append("$$\n");
+        solution.append("r = \\dfrac{a}{").append(b).append("^").append(d).append("}\n");
+        solution.append("$$\n");
+
+        // Determinazione della sommatoria
+        solution.append("La sommatoria diventa:\n");
+        solution.append("$$\n");
+        solution.append("\\sum_{i=0}^{\\log_{").append(b).append("} n -1} ").append(a).append("^i \\left( \\dfrac{n}{").append(b).append("^i} \\right)^{").append(d).append("}");
+
+        if (!kValue.equals("0")) {
+            solution.append(" \\left( \\log \\dfrac{n}{").append(b).append("^i} \\right)^{").append(kValue).append("}");
+        }
+
+        solution.append("\n$$\n");
+
+        // Semplificazione della sommatoria
+        solution.append("<h3>Semplificazione della sommatoria:</h3>\n");
+        solution.append("Semplifichiamo i termini nella sommatoria:\n");
+        solution.append("$$\n");
+        solution.append(a).append("^i \\left( \\dfrac{n}{").append(b).append("^i} \\right)^{").append(d).append("} = ")
+                .append(a).append("^i \\times n^{").append(d).append("} \\times \\left( \\dfrac{1}{").append(b).append("^{i}} \\right)^{").append(d).append("}\n");
+        solution.append("$$\n");
+        solution.append("Poiché \\( a^i \\times \\left( \\dfrac{1}{").append(b).append("^{i}} \\right)^{").append(d).append("} = \\left( \\dfrac{a}{").append(b).append("^").append(d).append("} \\right)^{i} \\), otteniamo:\n");
+        solution.append("$$\n");
+        solution.append("\\left( \\dfrac{a}{").append(b).append("^").append(d).append("} \\right)^{i} n^{").append(d).append("}\n");
+        solution.append("$$\n");
+
+        // Riscrittura della sommatoria
+        solution.append("Quindi, la sommatoria diventa:\n");
+        solution.append("$$\n");
+        solution.append("n^{").append(d).append("} \\sum_{i=0}^{\\log_{").append(b).append("} n -1} \\left( \\dfrac{a}{").append(b).append("^").append(d).append("} \\right)^{i}");
+
+        if (!kValue.equals("0")) {
+            solution.append(" \\left( \\log \\dfrac{n}{").append(b).append("^i} \\right)^{").append(kValue).append("}");
+        }
+
+        solution.append("\n$$\n");
+
+        // Valutazione della sommatoria geometrica
+        solution.append("<h3>Valutazione della sommatoria geometrica:</h3>\n");
+        solution.append("Il termine \\( \\left( \\dfrac{a}{").append(b).append("^").append(d).append("} \\right) \\) è la ragione della progressione geometrica.\n");
+
+        // Controllo del valore di r per determinare il comportamento della sommatoria
+        double rValue = a / Math.pow(b, Double.parseDouble(d));
+        solution.append("Calcoliamo il valore di \\( r \\):\n");
+        solution.append("$$\n");
+        solution.append("r = \\dfrac{").append(a).append("}{").append(b).append("^").append(d).append("} = ").append(formatDouble(rValue)).append("\n");
+        solution.append("$$\n");
+
+        if (rValue < 1) {
+            solution.append("Poiché \\( r < 1 \\), la sommatoria converge e possiamo utilizzare la formula della somma di una progressione geometrica finita:\n");
+            solution.append("$$\n");
+            solution.append("\\sum_{i=0}^{k-1} r^{i} = \\dfrac{1 - r^{k}}{1 - r}\n");
+            solution.append("$$\n");
+        } else if (rValue == 1) {
+            solution.append("Poiché \\( r = 1 \\), la sommatoria diventa:\n");
+            solution.append("$$\n");
+            solution.append("\\sum_{i=0}^{k-1} 1 = k\n");
+            solution.append("$$\n");
+        } else {
+            solution.append("Poiché \\( r > 1 \\), la sommatoria cresce esponenzialmente.\n");
+        }
+
+        // Calcolo finale della sommatoria
+        solution.append("<h3>Calcolo finale della sommatoria:</h3>\n");
+
+        if (rValue != 1) {
+            solution.append("Sostituendo i valori, otteniamo:\n");
+            solution.append("$$\n");
+            solution.append("\\sum_{i=0}^{\\log_{").append(b).append("} n -1} \\left( \\dfrac{a}{").append(b).append("^").append(d).append("} \\right)^{i} = \\dfrac{1 - \\left( \\dfrac{a}{").append(b).append("^").append(d).append("} \\right)^{\\log_{").append(b).append("} n}}{1 - \\dfrac{a}{").append(b).append("^").append(d).append("}}\n");
+            solution.append("$$\n");
+
+            // Semplificazione dell'esponente
+            solution.append("Semplifichiamo l'esponente:\n");
+            solution.append("$$\n");
+            solution.append("\\left( \\dfrac{a}{").append(b).append("^").append(d).append("} \\right)^{\\log_{").append(b).append("} n} = n^{\\log_{").append(b).append("} \\left( \\dfrac{a}{").append(b).append("^").append(d).append("} \\right)}\n");
+            solution.append("$$\n");
+
+            // Calcolo dell'esponente
+            double exponentValue = (Math.log(a) - Double.parseDouble(d) * Math.log(b)) / Math.log(b);
+            String exponentStr = formatDouble(exponentValue);
+            solution.append("Calcoliamo l'esponente:\n");
+            solution.append("$$\n");
+            solution.append("\\log_{").append(b).append("} \\left( \\dfrac{").append(a).append("}{").append(b).append("^").append(d).append("} \\right) = ").append(exponentStr).append("\n");
+            solution.append("$$\n");
+
+            // Sostituzione nell'espressione
+            solution.append("Quindi, la sommatoria diventa:\n");
+            solution.append("$$\n");
+            solution.append("\\dfrac{1 - n^{").append(exponentStr).append("}}{1 - \\dfrac{").append(a).append("}{").append(b).append("^").append(d).append("}}\n");
+            solution.append("$$\n");
+
+            // Sostituzione nella formula di T(n)
+            solution.append("Sostituendo tutto nell'espressione di \\( T(n) \\):\n");
+            solution.append("$$\n");
+            solution.append("T(n) = n^{\\log_{").append(b).append("} ").append(a).append("} T(1) + n^{").append(d).append("} \\times \\dfrac{1 - n^{").append(exponentStr).append("}}{1 - \\dfrac{").append(a).append("}{").append(b).append("^").append(d).append("}}\n");
+            solution.append("$$\n");
+        } else {
+            // Caso r = 1
+            solution.append("La sommatoria diventa:\n");
+            solution.append("$$\n");
+            solution.append("\\sum_{i=0}^{\\log_{").append(b).append("} n -1} 1 = \\log_{").append(b).append("} n\n");
+            solution.append("$$\n");
+
+            // Sostituzione nella formula di T(n)
+            solution.append("Quindi, l'espressione di \\( T(n) \\) diventa:\n");
+            solution.append("$$\n");
+            solution.append("T(n) = n^{\\log_{").append(b).append("} ").append(a).append("} T(1) + n^{").append(d).append("} \\times \\log_{").append(b).append("} n\n");
+            solution.append("$$\n");
+        }
+
+        // Determinazione della complessità asintotica
         solution.append("<h3>Determinazione della complessità asintotica:</h3>\n");
-        solution.append("Analizziamo i termini:\n");
-        solution.append("$$\n");
-        solution.append("T(n) = n^{\\log_{").append(b).append("} ").append(a).append("} + n^d \\times \\dfrac{1 - n^{\\log_{").append(b).append("} \\left( \\dfrac{a}{b^d} \\right)}}{1 - \\dfrac{a}{b^d}}\n");
-        solution.append("$$\n");
 
-        // Spiegazione finale
-        solution.append("<h3>Conclusione:</h3>\n");
-        String complexity = determineComplexity(a, b, fn);
+        double logba = Math.log(a) / Math.log(b);
+        double exponentDifference = logba - Double.parseDouble(d);
 
-        solution.append("La complessità asintotica è:<br>");
-        solution.append("$$\n");
-        solution.append("T(n) = \\Theta(").append(complexity).append(")\n");
-        solution.append("$$\n");
+        if (rValue < 1) {
+            if (exponentDifference > 0) {
+                solution.append("Poiché \\( \\log_{").append(b).append("} ").append(a).append("} > ").append(d).append(" \\), il termine dominante è \\( n^{\\log_{").append(b).append("} ").append(a).append("}} \\).\n");
+                solution.append("Pertanto:\n");
+                solution.append("$$\n");
+                solution.append("T(n) = \\Theta\\left( n^{").append(formatDouble(logba)).append("} \\right)\n");
+                solution.append("$$\n");
+            } else {
+                solution.append("Il termine della sommatoria domina.\n");
+                solution.append("Pertanto:\n");
+                solution.append("$$\n");
+                solution.append("T(n) = \\Theta\\left( n^{").append(d).append("} \\right)\n");
+                solution.append("$$\n");
+            }
+        } else if (rValue == 1) {
+            solution.append("Poiché \\( r = 1 \\), il termine \\( n^{").append(d).append("} \\log n \\) domina.\n");
+            solution.append("Pertanto:\n");
+            solution.append("$$\n");
+            solution.append("T(n) = \\Theta\\left( n^{").append(d).append("} \\log n \\right)\n");
+            solution.append("$$\n");
+        } else {
+            if (exponentDifference < 0) {
+                solution.append("Poiché \\( \\log_{").append(b).append("} ").append(a).append("} < ").append(d).append(" \\), il termine della sommatoria domina.\n");
+                solution.append("Calcoliamo:\n");
+                solution.append("$$\n");
+                double v = Math.log(a / Math.pow(b, Double.parseDouble(d))) / Math.log(b);
+                double exponentValue1 = v;
+                double totalExponent = Double.parseDouble(d) + exponentValue1;
+                solution.append("T(n) = \\Theta\\left( n^{").append(formatDouble(totalExponent)).append("} \\right)\n");
+                solution.append("$$\n");
+            } else {
+                solution.append("Entrambi i termini crescono allo stesso ritmo.\n");
+                solution.append("Pertanto:\n");
+                solution.append("$$\n");
+                solution.append("T(n) = \\Theta\\left( n^{").append(formatDouble(logba)).append("} \\right)\n");
+                solution.append("$$\n");
+            }
+        }
 
         return solution.toString();
     }
+
 
 
     // Metodo per risolvere una ricorrenza utilizzando il Teorema di Master
